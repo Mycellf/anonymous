@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
-pub(crate) mod app;
+mod app;
+mod tilemap;
 
 #[macroquad::main("Anonymous")]
 async fn main() {
