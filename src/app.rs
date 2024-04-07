@@ -7,6 +7,8 @@ impl App {
         Self {}
     }
 
+    pub fn update(&mut self) {}
+
     pub fn draw(&self) {
         draw_text("Hello World", 10.0, 50.0, 40.0, WHITE);
     }
