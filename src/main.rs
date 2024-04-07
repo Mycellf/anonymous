@@ -4,11 +4,10 @@ pub(crate) mod app;
 
 #[macroquad::main("Anonymous")]
 async fn main() {
-    let app = app::App {};
+    let app = app::App::new();
 
     loop {
-        draw_text("Hello World", 10.0, 50.0, 40.0, WHITE);
-
+        app.draw();
         next_frame().await;
     }
 }
