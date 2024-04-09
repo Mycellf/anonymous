@@ -11,14 +11,35 @@ pub struct TileMap<const N: usize> {
 }
 
 impl<const N: usize> TileMap<N> {
+    pub fn gen_from_size(size: Vector2<usize>) -> Self {
+        let chunks = std::iter::repeat(Chunk::gen_from_tile(Tile {}))
+            .take(size.x * size.y)
+            .collect();
+        Self { size, chunks }
+    }
+
     pub fn get_tile(&self, position: Vector2<usize>) -> Tile {
         let (chunk, tile) = Self::get_chunk_coords(position);
         self.get_chunk(chunk).tiles[tile.x][tile.y]
     }
 
+    pub fn get_tile_mut(&mut self, position: Vector2<usize>) -> &mut Tile {
+        let (chunk, tile) = Self::get_chunk_coords(position);
+        &mut self.get_chunk_mut(chunk).tiles[tile.x][tile.y]
+    }
+
+    pub fn set_tile(&mut self, position: Vector2<usize>, tile: Tile) {
+        *self.get_tile_mut(position) = tile;
+    }
+
     pub fn get_chunk(&self, chunk: Vector2<usize>) -> &Chunk<N> {
         let index = chunk.x + chunk.y * self.size.x;
         &self.chunks[index]
+    }
+
+    pub fn get_chunk_mut(&mut self, chunk: Vector2<usize>) -> &mut Chunk<N> {
+        let index = chunk.x + chunk.y * self.size.x;
+        &mut self.chunks[index]
     }
 
     fn get_chunk_coords(position: Vector2<usize>) -> (Vector2<usize>, Vector2<usize>) {
@@ -27,6 +48,13 @@ impl<const N: usize> TileMap<N> {
         }
 
         (position / N, rem(position, N))
+    }
+
+    pub fn draw_around(&self, camera: &Camera2D) {
+        let view_area = vector![
+            screen_width() / camera.zoom.x,
+            screen_height() / camera.zoom.y
+        ];
     }
 }
 
