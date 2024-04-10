@@ -97,6 +97,9 @@ impl<const N: usize> Chunk<N> {
         let size = Self::get_pixel_size() as u16;
         let mut image = Image::gen_image_color(size, size, BLANK);
         image.set_pixel(0, 0, WHITE);
+        image.set_pixel(0, Tile::PIXEL_SIZE as u32, WHITE);
+        image.set_pixel(Tile::PIXEL_SIZE as u32, 0, WHITE);
+        image.set_pixel(Tile::PIXEL_SIZE as u32, Tile::PIXEL_SIZE as u32, WHITE);
         let texture = Texture2D::from_image(&image);
         texture.set_filter(FilterMode::Nearest);
         Self { tiles, texture }
