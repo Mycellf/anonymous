@@ -51,6 +51,17 @@ impl<const N: usize> TileMap<N> {
     }
 
     pub fn draw_around(&self, camera: &Camera2D) {
+        let [horizontal_range, vertical_range] = self.get_area_around(camera);
+        for y in vertical_range {
+            let offset = y * self.size.x;
+            for x in horizontal_range.clone() {
+                let i = x + offset;
+                self.chunks[i].draw_at(vector![x as f32, y as f32] * Chunk::<N>::get_world_size());
+            }
+        }
+    }
+
+    fn get_area_around(&self, camera: &Camera2D) -> [std::ops::Range<usize>; 2] {
         let chunk_size = Chunk::<N>::get_world_size();
         let center: Vector2<_> = camera.target.into();
         let view_area = vector![1.0 / camera.zoom.x, 1.0 / camera.zoom.y,];
@@ -58,14 +69,7 @@ impl<const N: usize> TileMap<N> {
         let view_area = get_area_in_grid(chunk_size, self.size, view_area);
         let horizontal_range = view_area[0].x..view_area[1].x;
         let vertical_range = view_area[0].y..view_area[1].y;
-
-        for y in vertical_range {
-            let offset = y * self.size.x;
-            for x in horizontal_range.clone() {
-                let i = x + offset;
-                self.chunks[i].draw_at(vector![x as f32, y as f32] * chunk_size);
-            }
-        }
+        [horizontal_range, vertical_range]
     }
 }
 
