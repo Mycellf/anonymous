@@ -53,7 +53,7 @@ impl<const N: usize> TileMap<N> {
     pub fn draw_around(&self, camera: &Camera2D) {
         let chunk_size = Chunk::<N>::get_world_size();
         let center: Vector2<_> = camera.target.into();
-        let view_area = vector![1.0 / camera.zoom.x, 1.0 / camera.zoom.y,] / 2.0;
+        let view_area = vector![1.0 / camera.zoom.x, 1.0 / camera.zoom.y,];
         let view_area = [center - view_area, center + view_area];
         let view_area = get_area_in_grid(chunk_size, self.size, view_area);
         let horizontal_range = view_area[0].x..view_area[1].x;
