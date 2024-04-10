@@ -1,6 +1,6 @@
 use crate::tilemap::TileMap;
 use macroquad::prelude::*;
-use nalgebra::{vector, AbstractRotation, UnitComplex};
+use nalgebra::{vector, UnitComplex};
 
 pub struct App {
     camera: Camera2D,
