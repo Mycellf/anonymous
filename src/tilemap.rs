@@ -50,13 +50,17 @@ impl<const N: usize> TileMap<N> {
         (position / N, rem(position, N))
     }
 
-    pub fn draw_around(&self, camera: &Camera2D) {
+    pub fn draw_around(&self, camera: &Camera2D, debug_display: bool) {
         let [horizontal_range, vertical_range] = self.get_area_around(camera);
         for y in vertical_range {
             let offset = y * self.size.x;
             for x in horizontal_range.clone() {
                 let i = x + offset;
-                self.chunks[i].draw_at(vector![x as f32, y as f32] * Chunk::<N>::get_world_size());
+                let position = vector![x as f32, y as f32] * Chunk::<N>::get_world_size();
+                self.chunks[i].draw_at(position);
+                if debug_display {
+                    self.chunks[i].draw_debug_at(position);
+                }
             }
         }
     }
@@ -118,6 +122,12 @@ impl<const N: usize> Chunk<N> {
                 ..Default::default()
             },
         );
+    }
+
+    pub fn draw_debug_at(&self, position: Vector2<f32>) {
+        let size = Self::get_world_size();
+
+        draw_rectangle_lines(position.x, position.y, size, size, 0.05, GREEN);
     }
 
     pub fn get_pixel_size() -> usize {
