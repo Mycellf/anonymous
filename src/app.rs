@@ -10,7 +10,7 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         let camera = Camera2D {
-            zoom: Vec2::splat(1.0 / 64.0),
+            zoom: Vec2::splat(1.0 / 8.0),
             ..Default::default()
         };
         let tilemap = TileMap::gen_from_size(vector![16, 16]);
