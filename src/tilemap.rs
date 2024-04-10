@@ -57,7 +57,7 @@ impl<const N: usize> TileMap<N> {
             let offset = y * self.size.x;
             for x in horizontal_range.clone() {
                 let i = x + offset;
-                let position = vector![x as f32, y as f32] * Chunk::<N>::get_world_size();
+                let position = vector![x as f32, y as f32] * Chunk::<N>::WORLD_SIZE;
                 self.chunks[i].draw_at(position);
                 if debug_display {
                     self.chunks[i].draw_debug_at(position);
@@ -79,7 +79,7 @@ impl<const N: usize> TileMap<N> {
             view_area.x * sin_mul + view_area.y * cos_mul,
         ];
         let view_area = [center - view_area, center + view_area];
-        let view_area = get_area_in_grid(Chunk::<N>::get_world_size(), self.size, view_area);
+        let view_area = get_area_in_grid(Chunk::<N>::WORLD_SIZE, self.size, view_area);
 
         let horizontal_range = view_area[0].x..view_area[1].x;
         let vertical_range = view_area[0].y..view_area[1].y;
@@ -96,9 +96,12 @@ pub struct Chunk<const N: usize> {
 }
 
 impl<const N: usize> Chunk<N> {
+    const PIXEL_SIZE: usize = N * Tile::PIXEL_SIZE;
+    const WORLD_SIZE: f32 = N as f32 * Tile::WORLD_SIZE;
+
     pub fn gen_from_tile(tile: Tile) -> Self {
         let tiles = [[tile; N]; N];
-        let size = Self::get_pixel_size() as u16;
+        let size = Self::PIXEL_SIZE as u16;
         let mut image = Image::gen_image_color(size, size, BLANK);
         image.set_pixel(0, 0, WHITE);
         image.set_pixel(0, Tile::PIXEL_SIZE as u32, WHITE);
@@ -110,7 +113,7 @@ impl<const N: usize> Chunk<N> {
     }
 
     pub fn draw_at(&self, position: Vector2<f32>) {
-        let size = Self::get_world_size();
+        let size = Self::WORLD_SIZE;
 
         draw_texture_ex(
             &self.texture,
@@ -125,17 +128,9 @@ impl<const N: usize> Chunk<N> {
     }
 
     pub fn draw_debug_at(&self, position: Vector2<f32>) {
-        let size = Self::get_world_size();
+        let size = Self::WORLD_SIZE;
 
         draw_rectangle_lines(position.x, position.y, size, size, 0.05, GREEN);
-    }
-
-    pub fn get_pixel_size() -> usize {
-        N * Tile::PIXEL_SIZE
-    }
-
-    pub fn get_world_size() -> f32 {
-        N as f32 * Tile::WORLD_SIZE
     }
 }
 
