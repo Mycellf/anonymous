@@ -67,7 +67,6 @@ impl<const N: usize> TileMap<N> {
 
     fn get_area_around(&self, camera: &Camera2D) -> [std::ops::Range<usize>; 2] {
         use std::f32::consts::PI;
-        let chunk_size = Chunk::<N>::get_world_size();
         let center: Vector2<_> = camera.target.into();
 
         let angle = UnitComplex::new(camera.rotation * PI / 180.0);
@@ -79,7 +78,7 @@ impl<const N: usize> TileMap<N> {
             view_area.x * sin_mul + view_area.y * cos_mul,
         ];
         let view_area = [center - view_area, center + view_area];
-        let view_area = get_area_in_grid(chunk_size, self.size, view_area);
+        let view_area = get_area_in_grid(Chunk::<N>::get_world_size(), self.size, view_area);
 
         let horizontal_range = view_area[0].x..view_area[1].x;
         let vertical_range = view_area[0].y..view_area[1].y;
