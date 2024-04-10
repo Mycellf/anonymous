@@ -42,6 +42,7 @@ impl<const N: usize> TileMap<N> {
         &mut self.chunks[index]
     }
 
+    /// Returns (chunk, tile).
     fn get_chunk_coords(position: Vector2<usize>) -> (Vector2<usize>, Vector2<usize>) {
         fn rem(vector: Vector2<usize>, scalar: usize) -> Vector2<usize> {
             vector![vector.x % scalar, vector.y % scalar]
