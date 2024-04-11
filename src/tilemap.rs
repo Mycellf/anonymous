@@ -112,9 +112,13 @@ impl<const N: usize> Chunk<N> {
     pub fn draw_at(&self, position: Vector2<f32>, tile_atlas: &Texture2D) {
         for x in 0..N {
             for y in 0..N {
-                let world_position = position + vector![x as f32, y as f32] * Tile::WORLD_SIZE;
                 let tile = self.tiles[x][y];
+                if tile.atlas_index == 0 {
+                    continue;
+                }
+
                 let atlas_position = tile.get_location_in_atlas();
+                let world_position = position + vector![x as f32, y as f32] * Tile::WORLD_SIZE;
 
                 draw_texture_ex(
                     &tile_atlas,
@@ -145,16 +149,20 @@ impl<const N: usize> Chunk<N> {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
-    atlas_index: usize,
+    pub atlas_index: usize,
 }
 
 impl Tile {
     pub const PIXEL_SIZE: usize = 8;
     pub const WORLD_SIZE: f32 = 1.0;
 
+    pub fn new(atlas_index: usize) -> Self {
+        Self { atlas_index }
+    }
+
     /// Does not support wrapping for 2D tilemaps
     pub fn get_location_in_atlas(&self) -> Vector2<usize> {
-        vector![self.atlas_index * Self::PIXEL_SIZE, 0]
+        vector![(self.atlas_index - 1) * Self::PIXEL_SIZE, 0]
     }
 }
 

@@ -9,17 +9,20 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         let camera = Camera2D {
             zoom: Vec2::splat(1.0 / 8.0),
             ..Default::default()
         };
-        let tile_atlas = Texture2D::from_image(&Image::gen_image_color(
-            Tile::PIXEL_SIZE as u16,
-            Tile::PIXEL_SIZE as u16,
-            BLANK,
-        ));
-        let tilemap = TileMap::gen_from_size(vector![16, 16], tile_atlas);
+        let tile_atlas = load_texture("assets/tile_atlas.png").await.unwrap();
+        tile_atlas.set_filter(FilterMode::Nearest);
+        let mut tilemap = TileMap::gen_from_size(vector![16, 16], tile_atlas);
+        tilemap.set_tile(vector![0, 0], Tile::new(1));
+        tilemap.set_tile(vector![1, 0], Tile::new(1));
+        tilemap.set_tile(vector![0, 1], Tile::new(1));
+        tilemap.set_tile(vector![2, 0], Tile::new(2));
+        tilemap.set_tile(vector![1, 1], Tile::new(2));
+        tilemap.set_tile(vector![0, 2], Tile::new(2));
         let debug_display = false;
         Self {
             camera,

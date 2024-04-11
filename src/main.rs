@@ -6,7 +6,7 @@ mod tilemap;
 #[macroquad::main("Anonymous")]
 async fn main() {
     rand::rand(); // first random number is always zero otherwise
-    let mut app = app::App::new();
+    let mut app = app::App::new().await;
 
     loop {
         app.update();
