@@ -19,12 +19,12 @@ impl<const N: usize> TileMap<N> {
     }
 
     pub fn get_tile(&self, position: Vector2<usize>) -> Tile {
-        let (chunk, tile) = Self::get_chunk_coords(position);
+        let (chunk, tile) = self.get_chunk_coords(position);
         self.get_chunk(chunk).tiles[tile.x][tile.y]
     }
 
     pub fn get_tile_mut(&mut self, position: Vector2<usize>) -> &mut Tile {
-        let (chunk, tile) = Self::get_chunk_coords(position);
+        let (chunk, tile) = self.get_chunk_coords(position);
         &mut self.get_chunk_mut(chunk).tiles[tile.x][tile.y]
     }
 
@@ -43,7 +43,8 @@ impl<const N: usize> TileMap<N> {
     }
 
     /// Returns (chunk, tile).
-    fn get_chunk_coords(position: Vector2<usize>) -> (Vector2<usize>, Vector2<usize>) {
+    fn get_chunk_coords(&self, position: Vector2<usize>) -> (Vector2<usize>, Vector2<usize>) {
+        assert!(position.x < self.size.x && position.y < self.size.y);
         fn rem(vector: Vector2<usize>, scalar: usize) -> Vector2<usize> {
             vector![vector.x % scalar, vector.y % scalar]
         }
