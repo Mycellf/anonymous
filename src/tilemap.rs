@@ -58,6 +58,8 @@ impl<const N: usize> TileMap<N> {
     }
 
     pub fn draw_around(&self, camera: &Camera2D, debug_display: bool) {
+        // Wasteful when camera is rotated at oblique angles.
+        // Change if performance becomes an issue.
         let [horizontal_range, vertical_range] = self.get_area_around(camera);
         for y in vertical_range {
             let offset = y * self.size.x;
@@ -69,6 +71,11 @@ impl<const N: usize> TileMap<N> {
                     self.chunks[i].draw_debug_at(position);
                 }
             }
+        }
+
+        if debug_display {
+            let size = vector![self.size.x as f32, self.size.y as f32] * Chunk::<N>::WORLD_SIZE;
+            draw_rectangle_lines(0.0, 0.0, size.x, size.y, 0.1, RED);
         }
     }
 
