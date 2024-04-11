@@ -1,4 +1,4 @@
-use crate::tilemap::TileMap;
+use crate::tilemap::{Tile, TileMap};
 use macroquad::prelude::*;
 use nalgebra::{vector, UnitComplex};
 
@@ -14,7 +14,12 @@ impl App {
             zoom: Vec2::splat(1.0 / 8.0),
             ..Default::default()
         };
-        let tilemap = TileMap::gen_from_size(vector![16, 16]);
+        let tile_atlas = Texture2D::from_image(&Image::gen_image_color(
+            Tile::PIXEL_SIZE as u16,
+            Tile::PIXEL_SIZE as u16,
+            BLANK,
+        ));
+        let tilemap = TileMap::gen_from_size(vector![16, 16], tile_atlas);
         let debug_display = false;
         Self {
             camera,

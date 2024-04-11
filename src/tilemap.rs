@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use nalgebra::{vector, DimRange, UnitComplex, Vector2};
+use nalgebra::{vector, UnitComplex, Vector2};
 
 /// A dynamic grid of `Chunk`s
 /// * `N` denotes the width and height of each chunk.
@@ -8,14 +8,19 @@ use nalgebra::{vector, DimRange, UnitComplex, Vector2};
 pub struct TileMap<const N: usize> {
     pub size: Vector2<usize>,
     chunks: Vec<Chunk<N>>,
+    tile_atlas: Texture2D,
 }
 
 impl<const N: usize> TileMap<N> {
-    pub fn gen_from_size(size: Vector2<usize>) -> Self {
-        let chunks = std::iter::repeat(Chunk::gen_from_tile(Tile {}))
+    pub fn gen_from_size(size: Vector2<usize>, tile_atlas: Texture2D) -> Self {
+        let chunks = std::iter::repeat(Chunk::gen_from_tile(Tile { atlas_index: 0 }))
             .take(size.x * size.y)
             .collect();
-        Self { size, chunks }
+        Self {
+            size,
+            chunks,
+            tile_atlas,
+        }
     }
 
     pub fn get_tile(&self, position: Vector2<usize>) -> Tile {
@@ -59,7 +64,7 @@ impl<const N: usize> TileMap<N> {
             for x in horizontal_range.clone() {
                 let i = x + offset;
                 let position = vector![x as f32, y as f32] * Chunk::<N>::WORLD_SIZE;
-                self.chunks[i].draw_at(position);
+                self.chunks[i].draw_at(position, &self.tile_atlas);
                 if debug_display {
                     self.chunks[i].draw_debug_at(position);
                 }
@@ -93,39 +98,42 @@ impl<const N: usize> TileMap<N> {
 #[derive(Clone, Debug)]
 pub struct Chunk<const N: usize> {
     pub tiles: [[Tile; N]; N],
-    pub texture: Texture2D,
 }
 
 impl<const N: usize> Chunk<N> {
-    const PIXEL_SIZE: usize = N * Tile::PIXEL_SIZE;
-    const WORLD_SIZE: f32 = N as f32 * Tile::WORLD_SIZE;
+    pub const PIXEL_SIZE: usize = N * Tile::PIXEL_SIZE;
+    pub const WORLD_SIZE: f32 = N as f32 * Tile::WORLD_SIZE;
 
     pub fn gen_from_tile(tile: Tile) -> Self {
         let tiles = [[tile; N]; N];
-        let size = Self::PIXEL_SIZE as u16;
-        let mut image = Image::gen_image_color(size, size, BLANK);
-        image.set_pixel(0, 0, WHITE);
-        image.set_pixel(0, Tile::PIXEL_SIZE as u32, WHITE);
-        image.set_pixel(Tile::PIXEL_SIZE as u32, 0, WHITE);
-        image.set_pixel(Tile::PIXEL_SIZE as u32, Tile::PIXEL_SIZE as u32, WHITE);
-        let texture = Texture2D::from_image(&image);
-        texture.set_filter(FilterMode::Nearest);
-        Self { tiles, texture }
+        Self { tiles }
     }
 
-    pub fn draw_at(&self, position: Vector2<f32>) {
-        let size = Self::WORLD_SIZE;
+    pub fn draw_at(&self, position: Vector2<f32>, tile_atlas: &Texture2D) {
+        for x in 0..N {
+            for y in 0..N {
+                let world_position = position + vector![x as f32, y as f32] * Tile::WORLD_SIZE;
+                let tile = self.tiles[x][y];
+                let atlas_position = tile.get_location_in_atlas();
 
-        draw_texture_ex(
-            &self.texture,
-            position.x,
-            position.y,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(Vec2::splat(size)),
-                ..Default::default()
-            },
-        );
+                draw_texture_ex(
+                    &tile_atlas,
+                    world_position.x,
+                    world_position.y,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(Vec2::splat(Tile::WORLD_SIZE)),
+                        source: Some(Rect::new(
+                            atlas_position.x as f32,
+                            atlas_position.y as f32,
+                            Tile::PIXEL_SIZE as f32,
+                            Tile::PIXEL_SIZE as f32,
+                        )),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
     }
 
     pub fn draw_debug_at(&self, position: Vector2<f32>) {
@@ -136,11 +144,18 @@ impl<const N: usize> Chunk<N> {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Tile {}
+pub struct Tile {
+    atlas_index: usize,
+}
 
 impl Tile {
-    const PIXEL_SIZE: usize = 8;
-    const WORLD_SIZE: f32 = 1.0;
+    pub const PIXEL_SIZE: usize = 8;
+    pub const WORLD_SIZE: f32 = 1.0;
+
+    /// Does not support wrapping for 2D tilemaps
+    pub fn get_location_in_atlas(&self) -> Vector2<usize> {
+        vector![self.atlas_index * Self::PIXEL_SIZE, 0]
+    }
 }
 
 pub fn get_area_in_grid(
