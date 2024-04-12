@@ -1,6 +1,6 @@
 use crate::tilemap::{Tile, TileMap};
 use macroquad::prelude::*;
-use nalgebra::{vector, UnitComplex};
+use nalgebra::{vector, Isometry2, UnitComplex, Vector2};
 
 pub struct App {
     camera: Camera2D,
@@ -33,7 +33,19 @@ impl App {
 
     pub fn update(&mut self) {
         use std::f32::consts::PI;
+        // Debug Control
         self.debug_display ^= is_key_pressed(KeyCode::F3);
+
+        // Tile Placement
+        if is_mouse_button_pressed(MouseButton::Left) {
+            if let Some(tile_position) =
+                (self.tilemap).get_position_in_tilemap(self.mouse_world_position())
+            {
+                self.tilemap.set_tile(tile_position, Tile::new(1));
+            }
+        }
+
+        // Camera Controller
         self.camera.target += Vec2::from(
             UnitComplex::new(-self.camera.rotation * PI / 180.0).transform_vector(
                 &(vector![
@@ -54,5 +66,24 @@ impl App {
         self.camera.zoom.x = self.camera.zoom.y * screen_height() / screen_width();
         set_camera(&self.camera);
         self.tilemap.draw_around(&self.camera, self.debug_display);
+    }
+
+    pub fn mouse_screen_position(&self) -> Vector2<f32> {
+        let mouse: Vector2<_> = mouse_position_local().into();
+        mouse.component_div(&self.camera.zoom.into())
+    }
+
+    pub fn mouse_world_position(&self) -> Vector2<f32> {
+        self.camera_isometry()
+            .transform_point(&self.mouse_screen_position().into())
+            .coords
+    }
+
+    pub fn camera_isometry(&self) -> Isometry2<f32> {
+        use std::f32::consts::PI;
+        Isometry2::new(
+            self.camera.target.into(),
+            -self.camera.rotation * PI / 180.0,
+        )
     }
 }
