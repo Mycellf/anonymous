@@ -47,7 +47,7 @@ impl<const N: usize> TileMap<N> {
         &mut self.chunks[index]
     }
 
-    pub fn get_position_in_tilemap(&self, location: Vector2<f32>) -> Option<Vector2<usize>> {
+    pub fn position_in_tilemap(&self, location: Vector2<f32>) -> Option<Vector2<usize>> {
         let position = location / Tile::WORLD_SIZE;
         let position = vector![position.x as usize, position.y as usize];
         if self.tile_in_bounds(position) {

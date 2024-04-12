@@ -38,9 +38,7 @@ impl App {
 
         // Tile Placement
         if is_mouse_button_pressed(MouseButton::Left) {
-            if let Some(tile_position) =
-                (self.tilemap).get_position_in_tilemap(self.mouse_world_position())
-            {
+            if let Some(tile_position) = self.mouse_tilemap_position() {
                 self.tilemap.set_tile(tile_position, Tile::new(1));
             }
         }
@@ -77,6 +75,11 @@ impl App {
         self.camera_isometry()
             .transform_point(&self.mouse_screen_position().into())
             .coords
+    }
+
+    pub fn mouse_tilemap_position(&self) -> Option<Vector2<usize>> {
+        self.tilemap
+            .position_in_tilemap(self.mouse_world_position())
     }
 
     pub fn camera_isometry(&self) -> Isometry2<f32> {
