@@ -190,7 +190,7 @@ impl Tile {
         Self { atlas_index }
     }
 
-    /// Does not support wrapping for 2D tilemaps
+    /// Does not support wrapping for 2D tilemaps, has undefined behavior when `atlas_index` = 0
     pub fn get_location_in_atlas(&self) -> Vector2<usize> {
         vector![(self.atlas_index - 1) * Self::PIXEL_SIZE, 0]
     }
