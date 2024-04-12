@@ -49,9 +49,8 @@ impl<const N: usize> TileMap<N> {
 
     pub fn position_in_tilemap(&self, location: Vector2<f32>) -> Option<Vector2<usize>> {
         let position = location / Tile::WORLD_SIZE;
-        let position = vector![position.x as usize, position.y as usize];
-        if self.tile_in_bounds(position) {
-            Some(position)
+        if self.location_in_bounds(position) {
+            Some(vector![position.x as usize, position.y as usize])
         } else {
             None
         }
@@ -66,9 +65,14 @@ impl<const N: usize> TileMap<N> {
         position.x < self.size.x && position.y < self.size.y
     }
 
+    pub fn location_in_bounds(&self, location: Vector2<f32>) -> bool {
+        let size = vector![self.size.x as f32, self.size.y as f32] * Tile::WORLD_SIZE * N as f32;
+        location.x >= 0.0 && location.y >= 0.0 && location.x <= size.x && location.y <= size.y
+    }
+
     /// Returns (chunk, tile).
     fn get_chunk_coords(&self, position: Vector2<usize>) -> (Vector2<usize>, Vector2<usize>) {
-        assert!(self.chunk_in_bounds(position));
+        assert!(self.tile_in_bounds(position));
         fn rem(vector: Vector2<usize>, scalar: usize) -> Vector2<usize> {
             vector![vector.x % scalar, vector.y % scalar]
         }
